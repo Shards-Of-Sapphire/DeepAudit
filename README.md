@@ -13,24 +13,24 @@ DeepAudit is a specialized static analysis tool (SAST) built to bridge this gap 
 # The "DeepAudit" Method
 DeepAudit doesn't just "read" code; it understands its structure through a four-phase pipeline:
 
-1. The X-Ray (AST Parsing)
-Using the Tree-sitter engine (the same tech powering GitHub and VS Code), DeepAudit generates a Concrete Syntax Tree (CST) of the target file. This allows us to find imports and function calls even if they are obfuscated or hidden in complex logic.
+**1. The X-Ray (AST Parsing)**
+  Using the Tree-sitter engine (the same tech powering GitHub and VS Code), DeepAudit generates a Concrete Syntax Tree (CST) of the target file. This allows us to find imports and function calls even if they are obfuscated or hidden in complex logic.
 
-2. The Truth Seeker (Dependency Guard)
-Every identified library is cross-referenced in real-time against the PyPI/NPM registries.
+**2. The Truth Seeker (Dependency Guard)**
+  Every identified library is cross-referenced in real-time against the PyPI/NPM registries.
 
-The Problem: AI often hallucinations "ideal" libraries (e.g., fastapi-secure-auth-v2).
+**The Problem**: AI often hallucinations "ideal" libraries (e.g., fastapi-secure-auth-v2).
 
-The Solution: DeepAudit flags any dependency not found on official mirrors as a CRITICAL HALLUCINATION.
+**The Solution**: DeepAudit flags any dependency not found on official mirrors as a CRITICAL HALLUCINATION.
 
-3. Logic Integrity Scan
+**3. Logic Integrity Scan**
 We scan the AST for "Lazy AI Patterns":
 
 Dangerous Sinks: eval(), exec(), and os.system().
 
 Logic Flaws: Unclosed ports or unhandled exceptions in generated boilerplate.
 
-4. Confidentiality Shield
+**4. Confidentiality Shield**
 A high-entropy regex engine scans for "Accidental Leaks"—strings that match the signature of AWS Keys, GitHub PATs, or Stripe Secrets.
 
 # Technical Stack

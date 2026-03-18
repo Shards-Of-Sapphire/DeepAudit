@@ -1,67 +1,74 @@
-###DeepAudit 🛡️###
-##The Intelligent Security Layer for Agentic Code.##
+# **DeepAudit**
+*The "X-Ray" for AI-Generated Code*
 
-DeepAudit is a specialized static analysis tool (SAST) designed to solve the "Verification Gap" in AI-generated code. While traditional tools look for known CVEs, DeepAudit identifies AI-native risks: hallucinated dependencies, dangerous logic patterns, and accidental credential leakage.
+Collective: Sapphire
 
-🧠 The "DeepAudit" Method
-AI agents often prioritize "working code" over "secure code." DeepAudit intercepts this by running four distinct security phases:
+Status: MVP (v0.1.0)
 
-The X-Ray (AST Engine): Uses a high-performance Tree-sitter parser to build a Concrete Syntax Tree (CST) of the code. This is more resilient than regex, allowing us to find imports and function calls even if they are obfuscated.
+# The Mission
+As AI agents (like AutoGPT, OpenDevin, and Gemini) become standard in software workflows, we face a new security frontier: The Hallucination Gap. AI frequently generates code using libraries that don't exist or logic that contains "mental lapses" (like hardcoded credentials or eval() traps).
 
-The Hallucination Guard: Performs real-time registry lookups (PyPI/NPM) to verify that every imported library actually exists. This catches "Phantom Packages" before they are installed.
+DeepAudit is a specialized static analysis tool (SAST) built to bridge this gap by performing high-speed AST parsing and real-time registry verification.
 
-Logic Integrity Scan: Detects high-risk patterns like eval(), exec(), or unparameterized shell commands that AI often uses as "shortcuts."
+# The "DeepAudit" Method
+DeepAudit doesn't just "read" code; it understands its structure through a four-phase pipeline:
 
-Secret Shield: Scans for high-entropy strings matching the signatures of AWS keys, GitHub tokens, and other sensitive credentials.
+1. The X-Ray (AST Parsing)
+Using the Tree-sitter engine (the same tech powering GitHub and VS Code), DeepAudit generates a Concrete Syntax Tree (CST) of the target file. This allows us to find imports and function calls even if they are obfuscated or hidden in complex logic.
 
-🚀 Quick Start (Sapphire Collective)
-Prerequisites
-Python 3.10+
+2. The Truth Seeker (Dependency Guard)
+Every identified library is cross-referenced in real-time against the PyPI/NPM registries.
 
-Git
+The Problem: AI often hallucinations "ideal" libraries (e.g., fastapi-secure-auth-v2).
 
-Installation
-Bash
-# Clone the repository
-git clone https://github.com/shaikzayed/DeepAudit.git
-cd DeepAudit
+The Solution: DeepAudit flags any dependency not found on official mirrors as a CRITICAL HALLUCINATION.
 
-# Create and activate virtual environment
+3. Logic Integrity Scan
+We scan the AST for "Lazy AI Patterns":
+
+Dangerous Sinks: eval(), exec(), and os.system().
+
+Logic Flaws: Unclosed ports or unhandled exceptions in generated boilerplate.
+
+4. Confidentiality Shield
+A high-entropy regex engine scans for "Accidental Leaks"—strings that match the signature of AWS Keys, GitHub PATs, or Stripe Secrets.
+
+# Technical Stack
+Engine: tree-sitter (C-bindings for high-speed parsing)
+
+Registry API: requests (Synchronous verification)
+
+Interface: rich (Modern, accessible CLI output)
+
+Environment: python-dotenv (Secure secret management)
+
+Architecture: src layout (Industry standard for distributable Python packages)
+
+# Quick Start
+1. Initialize the Environment
+```
+# Create and activate the virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
-# Install in editable mode (Developer Mode)
-pip install -e ".[dev]"
-Running an Audit
+# Install the core engine and grammar
+pip install -r requirements.txt
+pip install -e .
+```
+
+2. Run your first Audit
 Bash
-deepaudit examples/fake_deps.py
-🧪 Testing
-We maintain a 1:1 ratio of features to tests. To run the suite:
+```
+deepaudit examples/target_code.py
+```
+🧪 Quality Assurance
+DeepAudit maintains a 100% pass rate on its core scanner suite. Run the tests via:
 
 Bash
-pytest
-🛠️ Tech Stack
-Parser: Tree-sitter (C/Rust bindings)
+```
+pytest tests/
+```
+# 💎 About Sapphire
+DeepAudit is a flagship project of the Sapphire Collective, a student-led engineering group focused on building robust, AI-native infrastructure for the 2026 developer ecosystem.
 
-CLI: Rich (Modern Terminal UI)
-
-Registry API: Python Requests
-
-Project Management: Setuptools / Pyproject.toml
-
-Lead Architect: Shaik Zayed Saleem
-
-Organization: Sapphire Collective
-
-“Building the secure future of AI-assisted development.”
-
-Final Milestone Check
-Project Structure: 📂 Done
-
-AST Engine: 🧠 Done (The "Version War" survivor)
-
-Registry Checker: ✅ Done
-
-Secret Scanner: 🔒 Done
-
-Test Suite: 🧪 Done
+# Contact: [shardsofsapphire.org@gmail.com]

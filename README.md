@@ -53,7 +53,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
 # Install the core engine and grammar
 pip install -r requirements.txt
-pip install -e .
+pip install -e
 ```
 
 2. Run your first Audit
@@ -62,7 +62,7 @@ Bash
 deepaudit examples/target_code.py
 ```
 🧪 Quality Assurance
-DeepAudit maintains a 100% pass rate on its core scanner suite. Run the tests via:
+DeepAudit maintains a generous pass rate on its core scanner suite. Run the tests via:
 
 Bash
 ```

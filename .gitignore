@@ -1,0 +1,46 @@
+# --- Python Standard ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual Environments ---
+.venv/
+venv/
+ENV/
+
+# --- Tree-sitter & Engine Artifacts ---
+# Ignore compiled C/C++ parser files (they vary by OS)
+src/deepaudit/engine/parser/*.c
+src/deepaudit/engine/parser/*.h
+*.dylib
+*.dll
+*.so
+tree-sitter.json
+
+# --- Rust (Future-Proofing) ---
+target/
+**/*.rs.bk
+Cargo.lock
+
+# --- IDE & Environment ---
+.vscode/
+.idea/
+.DS_Store
+.env
+.env.*
+! .env.example
+
+# --- Tooling Cache (2026 Standards) ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/

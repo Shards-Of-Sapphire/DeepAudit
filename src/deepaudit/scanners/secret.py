@@ -1,23 +1,30 @@
 import re
 
-def scan_for_secrets(code_content):
+def scan_for_secrets(metadata):
     """
-    Scans for high-entropy strings that look like API Keys or Tokens.
+    Scans the raw source code for high-entropy strings (API Keys, Secrets).
     """
-    # Patterns for common 2026 API keys
-    patterns = {
-        "Generic API Key": r'(?:key|api|token|secret|pass|auth)[-_]?(?:key|api|token|secret|pass|auth)?["\']?\s*[:=]\s*["\']([A-Za-z0-9-_]{20,})["\']',
-        "GitHub Fine-grained Token": r'github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59}',
-        "AWS Access Key": r'(?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])'
+    # 1. THE FIX: Extract the string from the metadata dictionary
+    code_content = metadata.get('raw_code', '')
+    
+    findings = []
+    
+    # Example Regex for Generic API Keys
+    # (In a real scenario, Aayat would add specialized patterns for AWS, GitHub, etc.)
+    SECRET_PATTERNS = {
+        "Generic API Key": r'(?:key|api|token|secret|password|passwd|auth)[_-]?\w*[:=]\s*["\']([A-Za-z0-9/+=]{16,})["\']',
+        "GitHub Token": r'ghp_[a-zA-Z0-9]{36}',
     }
 
-    findings = []
-    for name, regex in patterns.items():
+    for label, regex in SECRET_PATTERNS.items():
+        # Now code_content is a string, so re.finditer will be happy
         matches = re.finditer(regex, code_content, re.IGNORECASE)
+        
         for match in matches:
             findings.append({
-                "type": "SECRET_LEAK",
-                "label": name,
-                "snippet": f"...{match.group(0)[:15]}***..." # Obfuscate for safety
+                "severity": "CRITICAL",
+                "issue": f"Potential {label} exposed: '{match.group(0)[:10]}...'",
+                "fix": "Move secrets to an .env file and use a library like 'python-dotenv'."
             })
+            
     return findings

@@ -1,27 +1,25 @@
-# 🔍 DeepAudit Scanner Specification
+# Scanner Development Guide
 
-*1. Scanner Structure*
-Every scanner in `src/deepaudit/scanners/` must be a standalone module. It should contain a primary function that accepts the `metadata` object and returns a `findings` list.
+All new scanners must adhere to the **Sapphire Integrity Standard**.
 
-*2. Severity Levels*
-Findings must be categorized by impact:
-* **CRITICAL:** Direct security breach (e.g., Hardcoded Secret, Hallucinated Dependency).
-* **HIGH:** Dangerous logic (e.g., `eval()`, `os.system()`).
-* **MEDIUM:** Best practice violations (e.g., Unsafe library versions).
-* **LOW:** Informational or "Vibe Check" warnings.
+## 1. Input/Output Contract
+Every scanner must be a function that accepts a `metadata` dict and returns a `findings` list.
 
-*3. Standard Return Format*
+**Required Schema for Findings:**
 ```python
 {
-    "type": "CATEGORY_NAME",
-    "severity": "CRITICAL/HIGH/MEDIUM/LOW",
-    "issue": "Short description of the flaw",
-    "fix": "Specific advice on how to resolve the issue",
-    "snippet": "The offending code fragment (obfuscated if sensitive)"
+    "severity": "CRITICAL" | "HIGH" | "MEDIUM" | "LOW",
+    "issue": "Brief description of the vulnerability",
+    "fix": "Specific instruction to resolve the risk",
+    "line": int  # Optional: line number from AST
 }
 ```
-*4. Hallucination Logic*
-​When verifying dependencies, the scanner must differentiate between:
-​404: Confirmed Hallucination (Critical).
-​Timeout: Registry Unreachable (Warning).
-​200: Verified (Pass).
+
+## 2. Priority List for v0.2.0
+[ ] JavaScript Support: Integrate tree-sitter-javascript.
+
+[ ] Fuzzy Matching: Detect "Typosquatting" (e.g., pandass instead of pandas).
+
+[ ] Environment Check: Check if the file is trying to access .env or system variables.
+
+---

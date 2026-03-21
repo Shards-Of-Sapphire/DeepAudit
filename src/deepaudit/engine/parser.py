@@ -1,56 +1,54 @@
+from importlib.metadata import metadata
+
+from rich import tree
 import tree_sitter_python as tspy
+from typing import Any, cast
 from tree_sitter import Language, Parser
 
-def get_ast_metadata(code_content):
-    # 1. Setup Parser & Language
-    PY_LANGUAGE = Language(tspy.language())
-    parser = Parser(PY_LANGUAGE)
-    
-    # 2. Parse Code
-    tree = parser.parse(bytes(code_content, "utf8"))
-    root_node = tree.root_node
-
-    libraries = []
-    functions = []
-
-    # 3. Define the Query Text
-    query_text = """
-        (import_statement name: (dotted_name) @import)
-        (import_from_statement module_name: (dotted_name) @import)
-        (function_definition name: (identifier) @func)
-    """
-    
-    try:
-        # In the newest API, we create the query from the language
-        query = PY_LANGUAGE.query(query_text)
+class CodeParser:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.language = Language(tspy.language())
+        self.parser = Parser(self.language)
         
-        # This is the line that usually breaks. 
-        # If query.captures(root_node) fails, we use the Cursor method.
-        try:
-            captures = query.captures(root_node)
-        except AttributeError:
-            # Fallback for ultra-new 2026 versions
-            from tree_sitter import Query
-            captures = query.run(root_node)
+    def _read_file(self):
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            return f.read()
 
-        # Iterate through the results
-        for node, tag in captures:
-            content = code_content[node.start_byte:node.end_byte]
-            
-            if tag == "import":
-                libraries.append(content.split('.')[0])
-            elif tag == "func":
-                functions.append(content)
+    def get_metadata(self):
+        """
+        The 'X-Ray' engine. Extracts the blueprint for Aayat's scanners.
+        """
+        code = self._read_file()
+        tree = self.parser.parse(bytes(code, "utf8"))
+        root_node = tree.root_node
+        
+        metadata = {
+            "libraries": [],
+            "raw_code": code,
+            "root": root_node
+        }
 
-    except Exception as e:
-        # If this STILL fails, we use a "No-Query" fallback so you can at least see the MVP
-        print(f"⚠️ AST Query Error: {e}. Switching to basic scan.")
-        import re
-        libraries = re.findall(r"import\s+([\w\.]+)", code_content)
-        functions = re.findall(r"def\s+(\w+)", code_content)
+        # Query to find all imports
+        # Change your query to this:
+        query = cast(Any, self.language.query("""
+            (import_from_statement module_name: (_) @mod)
+            (import_statement name: (_) @mod)
+        """))
+        
+        # NEW API: Use .matches() instead of .captures()
+        # matches is a list of QueryMatch objects
+        matches = query.matches(root_node)
 
-    return {
-        "libraries": list(set(libraries)),
-        "functions": functions,
-        "tree": tree
-    }
+        for match in matches:
+            # Each match has a 'captures' dictionary
+            # In the new API, captures is often a dict of {tag: [nodes]}
+            for tag, nodes in match.captures.items():
+                if tag == "mod":
+                    for node in nodes:
+                        # node.text is already bytes, we decode to string
+                        lib_name = node.text.decode('utf8')
+                        if lib_name not in metadata["libraries"]:
+                            metadata["libraries"].append(lib_name)
+
+        return metadata

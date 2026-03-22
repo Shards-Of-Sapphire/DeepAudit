@@ -3,7 +3,7 @@
 
 Collective: Sapphire
 
-Status: MVP (v0.1.0)
+Status: MVP (v0.2.0)
 
 # The Mission
 As AI agents (like AutoGPT, OpenDevin, and Gemini) become standard in software workflows, we face a new security frontier: The Hallucination Gap. AI frequently generates code using libraries that don't exist or logic that contains "mental lapses" (like hardcoded credentials or eval() traps).

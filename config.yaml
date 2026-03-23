@@ -1,0 +1,11 @@
+# DeepAudit v0.2.0 Configuration
+whitelist:
+  - rich                          # Explicitly trust local class names
+  - tree_sitter                   # Explicitly trust local class names
+  - psutil                        # Explicitly trust local class names
+  - PROJECT_INTERNAL_NAMESPACES   # Allow referencing internal namespaces for dependency checks
+  - STD_LIB_WHITELIST             # Allow referencing standard library whitelist for dependency checks
+  - STD_LIB_BLACKLIST             # Allow referencing standard library blacklist for dependency checks
+  - yaml                          # Allow referencing yaml module for config parsing
+  - CodeParser                    # Allow referencing CodeParser for AST-based analysis
+  - ACTIVE_SCANNERS               # Allow scanners to reference each other (e.g., DependencyScanner calling CodeParser)

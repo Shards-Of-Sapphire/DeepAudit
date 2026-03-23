@@ -1,7 +1,7 @@
 import tree_sitter_python as tspy
 from pathlib import Path
-from typing import Any, Dict, Union, cast
-from tree_sitter import Language, Parser, Node
+from typing import Any, Dict, Union
+from tree_sitter import Language, Parser, Node, Query, QueryCursor
 
 class CodeParser:
     def __init__(self, file_path: Union[str, Path]):
@@ -41,11 +41,8 @@ class CodeParser:
             (import_from_statement (dotted_name) @mod)
             (import_statement (dotted_name) @mod)
         """
-        query = self.language.query(query_scm)
-
-        # `captures` exists at runtime, but the current tree-sitter type stubs
-        # do not expose it on `Query`, so cast for Pylance compatibility.
-        captures = cast(Any, query).captures(root_node)
+        query = Query(self.language, query_scm)
+        captures = QueryCursor(query).captures(root_node)
 
         if "mod" in captures:
             for node in captures["mod"]:

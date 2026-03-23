@@ -5,6 +5,8 @@ tree-sitter-python>=0.20.0
 tree-sitter-javascript>=0.20.0
 # Added for secure .env management
 python-dotenv>=1.0.1
+# YAML config parsing
+PyYAML>=6.0.1
 
 # --- Scanners & API ---
 # For real-time PyPI/NPM registry verification (Anti-Hallucination)

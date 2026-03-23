@@ -1,3 +1,3 @@
-from ..deepaudit.engine import CodeParser
+from src.deepaudit.engine import CodeParser
 
 __all__ = ["CodeParser"]

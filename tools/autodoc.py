@@ -3,19 +3,27 @@ import ast
 import argparse
 from pathlib import Path
 
-# 1. FIXED IMPORTS: Drop 'src.' and import directly from the installed package
+# 1. Standardized Package Imports
 from deepaudit.utils.logger import get_logger
 from deepaudit.utils.crawler import SourceCrawler
-from tools.renderer import MarkdownRenderer
+
+# 2. Sibling Import for Tools
+from renderer import MarkdownRenderer
 
 logger = get_logger("AUTODOC")
 
 class AutodocAgent:
     def __init__(self):
-        # Ensure your paths are absolute relative to the project root
+        # Anchor to the root 'DeepAudit' folder
         self.project_root = Path(__file__).resolve().parent.parent
-        self.crawler = SourceCrawler(str(self.project_root / "src"))
-        self.renderer = MarkdownRenderer(str(self.project_root / "docs" / "API_CODEX.md"))
+        
+        # Point the crawler exactly at the inner source package
+        self.crawler = SourceCrawler(str(self.project_root / "src" / "deepaudit"))
+        
+        # Point the renderer exactly to your new docs folder
+        docs_dir = self.project_root / "src" / "deepaudit" / "docs"
+        self.renderer = MarkdownRenderer(str(docs_dir / "API_CODEX.md"))
+        
         self.registry = {}
 
     def process_file(self, file_path: Path, strict_mode: bool) -> tuple[dict, int]:
@@ -24,7 +32,6 @@ class AutodocAgent:
             source_code = f.read()
 
         try:
-            # Native Python AST parsing (Bulletproof for Python files)
             tree = ast.parse(source_code, filename=str(file_path))
         except SyntaxError as e:
             logger.error(f"Syntax error in {file_path}: {e}")
@@ -34,7 +41,6 @@ class AutodocAgent:
         missing_docs = 0
 
         for node in ast.walk(tree):
-            # Process Classes
             if isinstance(node, ast.ClassDef):
                 doc = ast.get_docstring(node)
                 module_data["classes"].append({
@@ -42,9 +48,7 @@ class AutodocAgent:
                     "doc": doc if doc else "No documentation provided."
                 })
 
-            # Process Functions/Methods
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                # Skip private/dunder methods unless it's __init__
                 if node.name.startswith("_") and node.name != "__init__":
                     continue
 
@@ -54,21 +58,18 @@ class AutodocAgent:
                     logger.warning(f"Missing docstring: {file_path.name} -> def {node.name}()")
                     missing_docs += 1
 
-                # Extract arguments safely
                 args = [arg.arg for arg in node.args.args]
-                param_str = f"({', '.join(args)})"
-
                 module_data["functions"].append({
                     "name": node.name,
-                    "params": param_str,
-                    "return": "Any", # Placeholder for advanced type hint extraction
+                    "params": f"({', '.join(args)})",
+                    "return": "Any", 
                     "doc": doc if doc else "*Warning: No docstring provided.*"
                 })
 
         return module_data, missing_docs
 
     def run(self, strict_mode=False):
-        logger.info("🚀 Booting v0.3.0 Autodoc Agent (Native AST Mode)...")
+        logger.info("🚀 Booting v0.3.0 Autodoc Agent...")
         files = self.crawler.get_python_files()
         total_missing = 0
 
@@ -78,7 +79,7 @@ class AutodocAgent:
             total_missing += missing
             
         self.renderer.render(self.registry)
-        logger.info(f"✅ Codex successfully mapped to docs/API_CODEX.md")
+        logger.info(f"✅ Codex mapped to src/deepaudit/docs/API_CODEX.md")
 
         if strict_mode and total_missing > 0:
             logger.error(f"❌ STRICT MODE FAILED: {total_missing} public methods lack docstrings.")

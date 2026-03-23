@@ -17,7 +17,7 @@ DeepAudit doesn't just "read" code; it understands its structure through a four-
 Using the Tree-sitter engine (the same tech powering GitHub and VS Code), DeepAudit generates a Concrete Syntax Tree (CST) of the target file. This allows us to find imports and function calls even if they are obfuscated or hidden in complex logic.
 
 **2. The Truth Seeker (Dependency Guard)**:  
-Every identified library is cross-referenced in real-time against the PyPI/NPM registries.
+Every identified library is cross-referenced in real-time against the PyPI registry.
 
 **The Problem**: AI often hallucinations "ideal" libraries (e.g., fastapi-secure-auth-v2).
 
@@ -53,7 +53,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
 # Install the core engine and grammar
 pip install -r requirements.txt
-pip install -e
+pip install -e .
 ```
 
 2. Run your first Audit
@@ -61,6 +61,7 @@ Bash
 ```
 deepaudit examples/target_code.py
 ```
+The repository now includes [`examples/target_code.py`](examples/target_code.py) as a sample input.
 🧪 Quality Assurance
 DeepAudit maintains a generous pass rate on its core scanner suite. Run the tests via:
 

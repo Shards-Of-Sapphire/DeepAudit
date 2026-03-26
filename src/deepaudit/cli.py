@@ -9,10 +9,11 @@ from rich.table import Table
 
 from deepaudit import VERSION
 from deepaudit.engine.parser import CodeParser
-from deepaudit.scanners import ACTIVE_SCANNERS
+from deepaudit.engine.parser import CodeParser
+from deepaudit.scanners.scanners import ScannerRegistry
 
 console = Console()
-
+registry = ScannerRegistry()
 
 def display_header() -> None:
     """Render the CLI header."""
@@ -67,27 +68,44 @@ def run_audit(file_path: str) -> int:
 
     display_header()
 
+    # 1. Parsing Phase
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         transient=True,
     ) as progress:
         progress.add_task(description="Parsing source...", total=None)
-        parser = CodeParser(target)
-        metadata = parser.get_metadata()
+        
+        parser = CodeParser(str(target))
+        # v0.3.0 Standard: Extracting AST and Raw Code for the new registry signature
+        ast_root = parser.parse()
+        with open(target, "r", encoding="utf-8") as f:
+            raw_code = f.read()
 
     results_table = _build_results_table(target.name)
     findings_by_scanner: list[list[dict]] = []
 
+    # 2. Scanning Phase (Dynamic Registry Integration)
     with Progress(transient=True) as progress:
         task = progress.add_task(
             "[cyan]Scanning for vulnerabilities...",
-            total=len(ACTIVE_SCANNERS),
+            total=len(registry.scanners),
         )
-        for scanner_func in ACTIVE_SCANNERS:
-            findings_by_scanner.append(scanner_func(metadata))
+        
+        for scanner_func in registry.scanners:
+            try:
+                # Execute the dynamic hook: scan(ast_node, raw_code, file_path)
+                findings = scanner_func(ast_root, raw_code, str(target))
+                
+                # Keep the nested list structure for _render_findings
+                if findings:
+                    findings_by_scanner.append(findings)
+            except Exception as e:
+                console.print(f"[bold yellow]Warning:[/bold yellow] Scanner module crashed - {e}")
+                
             progress.advance(task)
 
+    # 3. Rendering Phase
     findings_count = _render_findings(results_table, findings_by_scanner)
     if findings_count > 0:
         console.print(results_table)
@@ -100,7 +118,6 @@ def run_audit(file_path: str) -> int:
         "\n[bold green]Audit Passed:[/bold green] No major hallucinations or leaks detected."
     )
     return 0
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="DeepAudit CLI")

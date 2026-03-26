@@ -2,9 +2,10 @@ import argparse
 import os
 import sys
 import time
+import psutil
 from math import ceil
 from pathlib import Path
-from multiprocessing import Process, Queue, cpu_count
+from multiprocessing import Process, Queue, cpu_count, process
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -14,14 +15,10 @@ if str(SRC_ROOT) not in sys.path:
 from deepaudit.engine.parser import CodeParser
 from deepaudit.scanners import ACTIVE_SCANNERS
 from deepaudit.utils.logger import get_logger
-
-try:
-    import psutil
-except ImportError:  # pragma: no cover - optional dependency
-    psutil = None
+from deepaudit.scanners.scanners import ScannerRegistry
 
 logger = get_logger("BOMBARD")
-
+process = psutil.Process(os.getpid())
 
 class BombardmentEngine:
     def __init__(self, target_path, workers):
@@ -48,39 +45,41 @@ class BombardmentEngine:
     @staticmethod
     def worker_task(files, queue):
         """
-        Parse each file and run scanners against the scanner metadata.
+        Parse each file and run scanners against the AST.
+        Runs in an isolated system process.
         """
-        process = psutil.Process(os.getpid()) if psutil else None
+        process = psutil.Process(os.getpid())
+        
+        # 1. THE FIX: Boot a local registry inside the worker's memory space.
+        # This completely bypasses Windows multiprocessing pickling errors.
+        local_registry = ScannerRegistry()
 
         for file_path in files:
             start_time = time.perf_counter()
             try:
-                parser = CodeParser(file_path)
-                metadata = parser.get_metadata()
+                # 2. The v0.3.0 Standard Parse
+                parser = CodeParser(str(file_path))
+                ast_root = parser.parse()
+                
+                with open(file_path, "r", encoding="utf-8") as f:
+                    raw_code = f.read()
 
-                findings_count = 0
-                for scanner in ACTIVE_SCANNERS:
-                    findings = scanner(metadata) or []
-                    findings_count += len(findings)
+                # 3. Execute the isolated local registry
+                findings = local_registry.run_all(ast_root, raw_code, str(file_path))
+                
+                # 4. Push safe, picklable data (dictionaries) back to the main process
+                if findings:
+                    queue.put({
+                        "file": str(file_path), 
+                        "findings": findings
+                    })
 
-                duration = (time.perf_counter() - start_time) * 1000
-                mem_usage = (
-                    process.memory_info().rss / (1024 * 1024)
-                    if process is not None
-                    else None
-                )
-
-                queue.put(
-                    {
-                        "status": "SUCCESS",
-                        "file": file_path,
-                        "ms": duration,
-                        "mem_mb": mem_usage,
-                        "findings": findings_count,
-                    }
-                )
-            except Exception as exc:  # pragma: no cover - multiprocessing surface
-                queue.put({"status": "ERROR", "file": file_path, "error": str(exc)})
+            except Exception as e:
+                # Prevent one corrupted file from crashing the whole worker thread
+                queue.put({
+                    "file": str(file_path), 
+                    "error": f"Worker crashed on file: {e}"
+                })
 
     def run(self):
         files = self.get_payload()

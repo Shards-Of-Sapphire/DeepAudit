@@ -2,6 +2,7 @@
 import tempfile
 import os
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from deepaudit.engine.parser import CodeParser
@@ -13,6 +14,16 @@ app = FastAPI(
     description="The Safe-Guard AI Audit Engine by Sapphire Collective.",
     version="0.3.0"
 )
+
+# --- NEW CORS CONFIGURATION ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Next.js runs on 3000
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# ------------------------------
 
 # Define the expected JSON payload from the user/dashboard
 class AuditRequest(BaseModel):
@@ -44,11 +55,9 @@ async def scan_code(request: AuditRequest):
         registry = ScannerRegistry()
         
         # 3. Execute the Scanners
-        findings_by_scanner = registry.run_all(ast_root, request.code, request.filename)
-        
-        # Flatten the nested list so it's a clean JSON array for the web dashboard
-        for scanner_findings in findings_by_scanner:
-            findings_list.extend(scanner_findings)
+        # Note: The v0.3 engine returns a nested list of findings
+        # The v0.4 engine already returns a perfect, flat list of dictionaries!
+        findings_list = registry.run_all(ast_root, request.code, request.filename)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Engine failure: {str(e)}")

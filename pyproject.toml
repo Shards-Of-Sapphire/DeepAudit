@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "deepaudit"
-version = "0.2.0"
+name = "sapphire-deepaudit"
+version = "0.3.0"
 description = "Automated security auditor for AI-generated code, focusing on AST logic and hallucination detection."
 readme = "README.md"
 requires-python = ">=3.10"

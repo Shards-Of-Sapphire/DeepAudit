@@ -1,4 +1,4 @@
-from deepaudit.scanners.dependency import verify_dependencies
+from src.deepaudit.scanners.dependency import scan as verify_dependencies
 
 
 class StubResponse:

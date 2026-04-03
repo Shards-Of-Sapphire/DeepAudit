@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 from pathlib import Path
 
@@ -45,3 +46,13 @@ def is_debug():
 
 def get_pypi_token():
     return get_config("PYPI_TOKEN")
+=======
+from ..deepaudit.utils.config import (
+    ConfigManager,
+    get_config,
+    get_pypi_token,
+    is_debug,
+)
+
+__all__ = ["ConfigManager", "get_config", "is_debug", "get_pypi_token"]
+>>>>>>> ba8e9ed80daf1e7830b688e8357da3c9ccf9ca6d

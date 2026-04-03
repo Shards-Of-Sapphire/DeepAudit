@@ -1,56 +1,94 @@
 import sys
-import os
+import ast
+import argparse
 from pathlib import Path
-from src.engine.parser import CodeParser
-from src.utils.logger import get_logger
+
+# 1. Standardized Package Imports
+from deepaudit.utils.logger import get_logger
+from deepaudit.utils.crawler import SourceCrawler
+
+# 2. Sibling Import for Tools
+from renderer import MarkdownRenderer
 
 logger = get_logger("AUTODOC")
 
 class AutodocAgent:
-    def __init__(self, src_root="src", output_file="docs/API.md"):
-        self.src_root = Path(src_root)
-        self.output_file = Path(output_file)
+    def __init__(self):
+        # Anchor to the root 'DeepAudit' folder
+        self.project_root = Path(__file__).resolve().parent.parent
+        
+        # Point the crawler exactly at the inner source package
+        self.crawler = SourceCrawler(str(self.project_root / "src" / "deepaudit"))
+        
+        # Point the renderer exactly to your new docs folder
+        docs_dir = self.project_root / "src" / "deepaudit" / "docs"
+        self.renderer = MarkdownRenderer(str(docs_dir / "API_CODEX.md"))
+        
         self.registry = {}
 
-    def extract_docstring(self, node):
-        """Clean the raw bytes from Tree-sitter into a readable string."""
-        if not node: return "No documentation provided."
-        raw = node.text.decode('utf-8').strip('"').strip("'")
-        return raw.strip()
+    def process_file(self, file_path: Path, strict_mode: bool) -> tuple[dict, int]:
+        """Uses Python's native AST to rigidly extract docstrings."""
+        with open(file_path, "r", encoding="utf-8") as f:
+            source_code = f.read()
 
-    def process_file(self, file_path):
-        """Uses CodeParser to map a single file's API."""
-        parser = CodeParser(str(file_path))
-        root = parser.parse()
-        
-        # v0.3.0 Logic: Query the AST for definitions
-        # (Simplified for implementation - uses the SCM logic above)
+        try:
+            tree = ast.parse(source_code, filename=str(file_path))
+        except SyntaxError as e:
+            logger.error(f"Syntax error in {file_path}: {e}")
+            return {"classes": [], "functions": []}, 0
+
         module_data = {"classes": [], "functions": []}
-        
-        # Iterate through root.children to find definitions...
-        # [Implementation of Query Execution Here]
-        
-        return module_data
+        missing_docs = 0
 
-    def render_markdown(self):
-        """Aggregates all module_data into the final Codex."""
-        with open(self.output_file, "w", encoding="utf-8") as f:
-            f.write("# 💎 DeepAudit API Codex (v0.3.0)\n\n")
-            for path, data in self.registry.items():
-                f.write(f"## 📦 Module: `{path}`\n\n")
-                # ... Loop through data and write Tables/Sections ...
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                doc = ast.get_docstring(node)
+                module_data["classes"].append({
+                    "name": node.name,
+                    "doc": doc if doc else "No documentation provided."
+                })
 
-    def run(self):
-        logger.info(f"🚀 Starting Autodoc crawl in {self.src_root}")
-        py_files = [p for p in self.src_root.rglob("*.py") if "__" not in p.name]
-        
-        for pf in py_files:
-            logger.info(f"Mapping: {pf}")
-            self.registry[str(pf)] = self.process_file(pf)
+            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if node.name.startswith("_") and node.name != "__init__":
+                    continue
+
+                doc = ast.get_docstring(node)
+                
+                if strict_mode and not doc:
+                    logger.warning(f"Missing docstring: {file_path.name} -> def {node.name}()")
+                    missing_docs += 1
+
+                args = [arg.arg for arg in node.args.args]
+                module_data["functions"].append({
+                    "name": node.name,
+                    "params": f"({', '.join(args)})",
+                    "return": "Any", 
+                    "doc": doc if doc else "*Warning: No docstring provided.*"
+                })
+
+        return module_data, missing_docs
+
+    def run(self, strict_mode=False):
+        logger.info("🚀 Booting v0.3.0 Autodoc Agent...")
+        files = self.crawler.get_python_files()
+        total_missing = 0
+
+        for pf in files:
+            data, missing = self.process_file(pf, strict_mode)
+            self.registry[str(pf)] = data
+            total_missing += missing
             
-        self.render_markdown()
-        logger.info(f"✅ Codex generated at {self.output_file}")
+        self.renderer.render(self.registry)
+        logger.info(f"✅ Codex mapped to src/deepaudit/docs/API_CODEX.md")
+
+        if strict_mode and total_missing > 0:
+            logger.error(f"❌ STRICT MODE FAILED: {total_missing} public methods lack docstrings.")
+            sys.exit(1)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="DeepAudit Autodoc Agent")
+    parser.add_argument("--check", action="store_true", help="Fail if docstrings are missing.")
+    args = parser.parse_args()
+
     agent = AutodocAgent()
-    agent.run()
+    agent.run(strict_mode=args.check)

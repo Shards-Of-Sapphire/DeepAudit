@@ -3,26 +3,27 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "deepaudit"
-version = "0.1.0"
+name = "sapphire-deepaudit"
+version = "0.3.0"
 description = "Automated security auditor for AI-generated code, focusing on AST logic and hallucination detection."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Shaik Zayed Saleem", email = "zayed@sapphire.dev"}, # Update as needed
 ]
 keywords = ["security", "ast", "ai-code", "audit", "static-analysis"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Topic :: Security",
 ]
 
 # --- Core Dependencies ---
 dependencies = [
-    "tree-sitter>=0.20.0",  # High-speed AST Parsing
+    "tree-sitter>=0.21.3",  # High-speed AST Parsing
+    "tree-sitter-python>=0.20.0",
     "requests>=2.31.0",     # Registry Verification (PyPI/NPM)
     "rich>=13.7.0",         # Professional CLI Output
     "python-dotenv>=1.0.1", # Environment variable loading
@@ -40,6 +41,13 @@ dev = [
 # This allows you to run 'deepaudit' directly in the terminal
 [project.scripts]
 deepaudit = "deepaudit.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["deepaudit*"]
 
 # --- Tool Configurations ---
 [tool.ruff]

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Scan, AlertTriangle, Loader2, FileX, RefreshCw, Shield, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Scan, AlertTriangle, Loader2, FileX, RefreshCw, Shield, CheckCircle2, Copy, ClipboardPaste, Sun, Moon, Code } from "lucide-react";
 
 // ============================================
 // ATOMIC COMPONENT: Button
@@ -15,6 +15,7 @@ interface ButtonProps {
   variant?: "primary" | "secondary" | "danger";
   className?: string;
   isLoading?: boolean;
+  title?: string;
 }
 
 const Button = ({ 
@@ -23,7 +24,8 @@ const Button = ({
   disabled, 
   variant = "primary", 
   className = "",
-  isLoading = false 
+  isLoading = false,
+  title
 }: ButtonProps) => {
   const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm";
   
@@ -67,6 +69,7 @@ const Button = ({
     <button
       onClick={onClick}
       disabled={disabled || isLoading}
+      title={title}
       className={`${baseClasses} ${variants[variant]} ${
         disabled || isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       } ${className}`}
@@ -269,17 +272,27 @@ const StateDisplay = ({
 // ATOMIC COMPONENT: Creative Header
 // Features: Vyne bold main title, SAPPHIRE badge top right, actual logo
 // ============================================
-const CreativeHeader = () => (
+const CreativeHeader = ({
+  theme,
+  toggleTheme,
+}: {
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+}) => (
   <div className="relative">
     {/* SAPPHIRE Badge - Top Right */}
     <div className="absolute top-0 right-0 flex items-center gap-3">
+      <button
+        onClick={toggleTheme}
+        className="p-2 bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-full hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors duration-200"
+        title="Toggle theme"
+      >
+        {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+      </button>
       <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2 rounded-full shadow-lg border-2 border-emerald-400/30">
         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
         <span className="font-bold text-sm tracking-wider">SAPPHIRE</span>
       </div>
-      <span className="text-xs text-stone-500 dark:text-stone-500 bg-stone-200 dark:bg-stone-800 px-3 py-1.5 rounded-full font-semibold border border-stone-300 dark:border-stone-700">
-        v0.4.0
-      </span>
     </div>
 
     {/* Main Title Section */}
@@ -401,6 +414,105 @@ export default function Home() {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState("");
   const [scanCompleted, setScanCompleted] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [copied, setCopied] = useState(false);
+
+  const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  const examples = {
+    "Eval Injection": `def dangerous_eval(user_input):
+    # This is extremely dangerous!
+    result = eval(user_input)
+    return result
+
+# Usage
+user_code = "__import__('os').system('rm -rf /')"
+dangerous_eval(user_code)`,
+    "SQL Injection": `import sqlite3
+
+def vulnerable_query(user_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    
+    # Vulnerable to SQL injection
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    cursor.execute(query)
+    
+    return cursor.fetchall()`,
+    "Command Injection": `import subprocess
+import shlex
+
+def run_command(user_command):
+    # Dangerous command execution
+    result = subprocess.run(user_command, shell=True, capture_output=True)
+    return result.stdout.decode()`,
+    "Unsafe Pickle": `import pickle
+
+def load_data(data):
+    # Never unpickle untrusted data!
+    return pickle.loads(data)
+
+# This could execute arbitrary code
+malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
+  };
+
+  const loadExample = (exampleName: string) => {
+    setCode(examples[exampleName as keyof typeof examples]);
+  };
+
+  const copyCode = async () => {
+    if (code) {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const pasteCode = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setCode(text);
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      console.log("Clipboard access not available");
+    }
+  };
+
+  const exportResults = () => {
+    const data = {
+      timestamp: new Date().toISOString(),
+      code: code,
+      findings: findings,
+      summary: {
+        total: findings.length,
+        critical: criticalCount,
+        warnings: warningCount,
+        info: infoCount
+      }
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vyne-audit-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'Enter' && code.trim() && !isScanning) {
+          e.preventDefault();
+          handleScan();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [code, isScanning]);
 
   const handleScan = async () => {
     if (!code.trim()) return;
@@ -471,7 +583,7 @@ export default function Home() {
             Features: Creative layout with SAPPHIRE badge, Vyne title, logo
             ============================================ */}
         <header className="border-b-2 border-stone-200 dark:border-stone-800 pb-8">
-          <CreativeHeader />
+          <CreativeHeader theme={theme} toggleTheme={toggleTheme} />
         </header>
 
         {/* ============================================
@@ -492,9 +604,21 @@ export default function Home() {
                 </div>
               </div>
             </label>
-            <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-500">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span>Python Support Active</span>
+            <div className="flex items-center gap-3">
+              <select
+                onChange={(e) => loadExample(e.target.value)}
+                className="text-sm bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-lg px-3 py-2 text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                defaultValue=""
+              >
+                <option value="" disabled>Load Example</option>
+                {Object.keys(examples).map((example) => (
+                  <option key={example} value={example}>{example}</option>
+                ))}
+              </select>
+              <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-500">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <span>Python Support Active</span>
+              </div>
             </div>
           </div>
           
@@ -539,6 +663,14 @@ export default function Home() {
               </div>
             </div>
             <div className="flex gap-3">
+              <Button variant="secondary" onClick={pasteCode} title="Paste code from clipboard">
+                <ClipboardPaste className="w-4 h-4" />
+                Paste
+              </Button>
+              <Button variant="secondary" onClick={copyCode} disabled={!code} title="Copy code to clipboard">
+                <Copy className="w-4 h-4" />
+                {copied ? "Copied!" : "Copy"}
+              </Button>
               {(code || findings.length > 0) && (
                 <Button variant="secondary" onClick={clearAll}>
                   <RefreshCw className="w-4 h-4" />
@@ -549,11 +681,15 @@ export default function Home() {
                 onClick={handleScan} 
                 disabled={!code.trim()}
                 isLoading={isScanning}
+                title="Run security audit on the code (Ctrl+Enter)"
               >
                 <Scan className="w-4 h-4" />
                 {isScanning ? "Scanning..." : "Run Security Audit"}
               </Button>
             </div>
+          </div>
+          <div className="mt-2 text-xs text-stone-500 dark:text-stone-500 text-center">
+            Tip: Use Ctrl+Enter to quickly run the audit
           </div>
         </Card>
 
@@ -566,14 +702,18 @@ export default function Home() {
           <div className="fixed inset-0 bg-stone-950/60 backdrop-blur-sm flex items-center justify-center z-50">
             <Card elevated className="text-center space-y-6 max-w-md">
               <Loader2 className="w-16 h-16 text-emerald-500 animate-spin mx-auto" />
-              <div className="space-y-2">
-                <div className="scanner-beam h-2 bg-emerald-500 rounded-full w-full"></div>
-                <p className="text-stone-700 dark:text-stone-300 font-semibold">
-                  Scanning with Tree-sitter Engine...
-                </p>
-                <p className="text-sm text-stone-600 dark:text-stone-400">
-                  Analyzing code patterns and security vulnerabilities
-                </p>
+              <div className="space-y-4">
+                <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+                  <div className="bg-emerald-500 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-stone-700 dark:text-stone-300 font-semibold">
+                    Scanning with Tree-sitter Engine...
+                  </p>
+                  <p className="text-sm text-stone-600 dark:text-stone-400">
+                    Analyzing code patterns and security vulnerabilities
+                  </p>
+                </div>
               </div>
             </Card>
           </div>
@@ -659,14 +799,22 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              {scanCompleted && findings.length > 0 && (
-                <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-900 px-4 py-2 rounded-lg border border-stone-200 dark:border-stone-800">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">
-                    {findings.length} Total
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {scanCompleted && findings.length > 0 && (
+                  <Button variant="secondary" onClick={exportResults} title="Export results as JSON">
+                    <Code className="w-4 h-4" />
+                    Export
+                  </Button>
+                )}
+                {scanCompleted && findings.length > 0 && (
+                  <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-900 px-4 py-2 rounded-lg border border-stone-200 dark:border-stone-800">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">
+                      {findings.length} Total
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Empty State */}

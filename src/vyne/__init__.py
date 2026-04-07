@@ -1,6 +1,6 @@
 """Vyne: security signal for AI-built code."""
 
-__version__ = "0.3.1"
+__version__ = "0.5.0"
 __author__ = "Shaik Zayed Saleem"
 __license__ = "Apache-2.0"
 VERSION = __version__

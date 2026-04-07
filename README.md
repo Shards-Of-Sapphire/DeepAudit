@@ -1,7 +1,7 @@
 # Vyne
 Security signal for AI-built code.
 
-Status: `v0.3.1`
+Status: `v0.5.0`
 
 ## What Vyne does
 Vyne scans AI-assisted Python code for the issues that slip through fast generation loops:
@@ -29,7 +29,7 @@ pip install -e .
 Run a scan:
 
 ```bash
-vyne tests/v0.3.1_test.py
+vyne tests/v0.5.0_test.py
 ```
 
 ## Local development

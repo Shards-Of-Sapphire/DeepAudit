@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vyne"
-version = "0.3.1"
+version = "0.5.0"
 description = "Security signal for AI-built code with AST-driven scanning for hallucinated dependencies, risky execution, and leaked secrets."
 readme = "README.md"
 requires-python = ">=3.10"

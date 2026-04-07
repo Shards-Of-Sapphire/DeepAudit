@@ -1,6 +1,6 @@
 # Vyne Security Test Suite
 
-**Version:** v0.3.1 | **VDI:** v1.0
+**Version:** v0.5.0 | **VDI:** v1.0
 **Test Framework:** pytest
 **Coverage:** 130-170 security findings
 

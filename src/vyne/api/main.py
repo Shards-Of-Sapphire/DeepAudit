@@ -12,7 +12,7 @@ from ..scanners.scanners import ScannerRegistry
 app = FastAPI(
     title="Vyne API",
     description="Vyne scanning API for AI-built code.",
-    version="0.3.1"
+    version="0.5.0"
 )
 
 # --- NEW CORS CONFIGURATION ---

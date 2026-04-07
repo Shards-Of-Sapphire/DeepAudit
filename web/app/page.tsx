@@ -8,6 +8,15 @@ import { Scan, AlertTriangle, Loader2, FileX, RefreshCw, Shield, CheckCircle2 } 
 // States: default, hover, disabled, loading
 // Variants: primary (green), secondary (beige), danger (red)
 // ============================================
+interface ButtonProps {
+  children: React.ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  variant?: "primary" | "secondary" | "danger";
+  className?: string;
+  isLoading?: boolean;
+}
+
 const Button = ({ 
   children, 
   onClick, 
@@ -15,7 +24,7 @@ const Button = ({
   variant = "primary", 
   className = "",
   isLoading = false 
-}: any) => {
+}: ButtonProps) => {
   const baseClasses = "px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm";
   
   const variants = {
@@ -73,12 +82,19 @@ const Button = ({
 // States: default, elevated, interactive
 // Variants: default, success, warning, error
 // ============================================
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  variant?: "default" | "success" | "warning" | "error";
+  elevated?: boolean;
+}
+
 const Card = ({ 
   children, 
   className = "", 
   variant = "default",
   elevated = false 
-}: any) => {
+}: CardProps) => {
   const variants = {
     default: "bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800",
     success: "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50",
@@ -106,7 +122,11 @@ const Card = ({
 // States: CRITICAL, WARNING, INFO, SUCCESS
 // Each severity has distinct color coding
 // ============================================
-const Badge = ({ severity }: { severity: string }) => {
+interface BadgeProps {
+  severity: "CRITICAL" | "WARNING" | "INFO" | "SUCCESS";
+}
+
+const Badge = ({ severity }: BadgeProps) => {
   const styles = {
     CRITICAL: `
       bg-red-100 text-red-700 border-red-300
@@ -207,13 +227,21 @@ const Table = ({ findings }: { findings: any[] }) => (
 // States: empty, error, success, info
 // Features: icon, title, description, optional action
 // ============================================
+interface StateDisplayProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  action?: React.ReactNode;
+  variant?: "default" | "success" | "error" | "warning";
+}
+
 const StateDisplay = ({ 
   icon, 
   title, 
   description, 
   action,
   variant = "default" 
-}: any) => {
+}: StateDisplayProps) => {
   const variants = {
     default: "text-stone-600 dark:text-stone-400",
     success: "text-emerald-600 dark:text-emerald-400",
@@ -321,7 +349,14 @@ const CreativeHeader = () => (
 // ATOMIC COMPONENT: StatsCard
 // Shows scan statistics with creative visual design
 // ============================================
-const StatsCard = ({ label, value, icon, variant = "default" }: any) => {
+interface StatsCardProps {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  variant?: "default" | "success" | "warning" | "error";
+}
+
+const StatsCard = ({ label, value, icon, variant = "default" }: StatsCardProps) => {
   const variants = {
     default: "border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900",
     success: "border-emerald-300 dark:border-emerald-800/50 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-stone-900",

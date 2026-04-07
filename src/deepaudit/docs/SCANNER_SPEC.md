@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 ## 🛡️ DeepAudit Scanner Specification (v0.2.0)
-=======
-## 🛡️ DeepAudit Scanner Specification (v0.4.1)
->>>>>>> ba8e9ed80daf1e7830b688e8357da3c9ccf9ca6d
 The Scanner Registry is a modular "plugin" system. Its purpose is to take the structured data provided by the Tree-sitter Engine and apply security heuristics to find vulnerabilities.
 
 *1. The Scanner Interface*

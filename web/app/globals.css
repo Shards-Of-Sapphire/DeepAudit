@@ -17,11 +17,28 @@
   --muted-bg: #f5f5f4;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: "Avenir Next", "Segoe UI", sans-serif;
-  --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+:root[data-theme='light'] {
+  --background: #f8faf5;
+  --foreground: #111827;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-glow: rgba(16, 185, 129, 0.3);
+  --muted: #6b7280;
+  --muted-bg: #f3f4f6;
+}
+
+:root[data-theme='dark'] {
+  --background: #020617;
+  --foreground: #e2e8f0;
+  --card-bg: #111827;
+  --border: #334155;
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-glow: rgba(56, 189, 248, 0.25);
+  --muted: #94a3b8;
+  --muted-bg: #0f172a;
 }
 
 @media (prefers-color-scheme: dark) {

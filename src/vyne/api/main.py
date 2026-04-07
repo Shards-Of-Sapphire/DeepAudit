@@ -5,8 +5,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from vyne.engine.parser import CodeParser
-from vyne.scanners.scanners import ScannerRegistry
+from ..engine.parser import CodeParser
+from ..scanners.scanners import ScannerRegistry
 
 # Initialize the FastAPI application
 app = FastAPI(

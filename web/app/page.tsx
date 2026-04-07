@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Scan, AlertTriangle, Loader2, FileX, RefreshCw, Shield, CheckCircle2, Copy, ClipboardPaste, Sun, Moon, Code } from "lucide-react";
+import { Scan, AlertTriangle, Loader2, FileX, RefreshCw, Shield, CheckCircle2, Copy, ClipboardPaste, Sun, Moon, Code, BarChart3, Activity, Sparkles } from "lucide-react";
 
 // ============================================
 // ATOMIC COMPONENT: Button
@@ -284,8 +284,8 @@ const CreativeHeader = ({
     <div className="absolute top-0 right-0 flex items-center gap-3">
       <button
         onClick={toggleTheme}
-        className="p-2 bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-full hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors duration-200"
-        title="Toggle theme"
+        className="rounded-full border border-stone-300 bg-stone-100 p-3 text-sm font-semibold text-stone-700 shadow-sm transition-all duration-200 hover:border-stone-400 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 dark:hover:border-stone-500"
+        title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
       >
         {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
       </button>
@@ -314,7 +314,7 @@ const CreativeHeader = ({
       {/* Title and Tagline */}
       <div className="flex-1 pt-2">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-5xl font-black text-stone-900 dark:text-stone-100 tracking-tight">
+          <h1 className="text-5xl font-black text-black dark:text-white tracking-tight drop-shadow-[0_2px_20px_rgba(0,0,0,0.08)] inline-block">
             VYNE
           </h1>
           <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full"></div>
@@ -402,6 +402,42 @@ const StatsCard = ({ label, value, icon, variant = "default" }: StatsCardProps) 
 };
 
 // ============================================
+// ATOMIC COMPONENT: MetricCard
+// Dashboard metrics with colorful gradients and quick insights
+// ============================================
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  icon: React.ReactNode;
+  variant: "emerald" | "violet" | "amber" | "sky";
+}
+
+const MetricCard = ({ title, value, subtitle, icon, variant }: MetricCardProps) => {
+  const styles = {
+    emerald: "bg-gradient-to-br from-emerald-500 to-emerald-600 border-emerald-200 text-white shadow-emerald-500/20",
+    violet: "bg-gradient-to-br from-violet-500 to-fuchsia-500 border-fuchsia-200 text-white shadow-fuchsia-500/20",
+    amber: "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-200 text-stone-900 shadow-amber-500/20",
+    sky: "bg-gradient-to-br from-sky-400 to-cyan-500 border-sky-200 text-white shadow-sky-500/20",
+  };
+
+  return (
+    <div className={`rounded-3xl border p-5 ${styles[variant]} transition-all duration-300 hover:-translate-y-1`}>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] opacity-80">{title}</p>
+          <p className="mt-3 text-4xl font-black">{value}</p>
+          <p className="mt-2 text-sm opacity-90">{subtitle}</p>
+        </div>
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 text-xl">
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ============================================
 // MAIN COMPONENT: Home
 // Orchestrates all atomic components
 // Manages all states: idle, scanning, error, results
@@ -416,6 +452,10 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
 
   const toggleTheme = () => setTheme((prev) => (prev === "light" ? "dark" : "light"));
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const examples = {
     "Eval Injection": `def dangerous_eval(user_input):
@@ -559,7 +599,7 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
   const infoCount = findings.filter((f: any) => f.severity === "INFO").length;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-50 via-stone-100 to-emerald-50 dark:from-stone-950 dark:via-stone-900 dark:to-emerald-950/20 text-stone-800 dark:text-stone-300 p-8 font-sans relative overflow-hidden">
+    <main className={`min-h-screen text-stone-800 dark:text-stone-300 p-8 font-sans relative overflow-hidden ${theme === 'dark' ? 'bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-900' : 'bg-gradient-to-br from-stone-50 via-emerald-50 to-sky-100'}`}>
       {/* Creative background decoration with geometric shapes */}
       <div className="absolute inset-0 opacity-20 dark:opacity-10">
         {/* Animated orbs */}
@@ -583,6 +623,79 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
         <header className="border-b-2 border-stone-200 dark:border-stone-800 pb-8">
           <CreativeHeader theme={theme} toggleTheme={toggleTheme} />
         </header>
+
+        {/* ============================================
+            DASHBOARD OVERVIEW
+            New quick metrics and multi-color cards for richer UX
+            ============================================ */}
+        <section className="grid gap-6 lg:grid-cols-[1.9fr_1fr]">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <MetricCard
+              title="Threat Score"
+              value="82%"
+              subtitle="Security readiness across the current scan"
+              icon={<AlertTriangle className="w-6 h-6" />}
+              variant="emerald"
+            />
+            <MetricCard
+              title="Detection Rate"
+              value="98.7%"
+              subtitle="Accuracy of the current engine model"
+              icon={<BarChart3 className="w-6 h-6" />}
+              variant="violet"
+            />
+            <MetricCard
+              title="Audit Mode"
+              value="Hybrid AI"
+              subtitle="Rules + model analysis working together"
+              icon={<Activity className="w-6 h-6" />}
+              variant="sky"
+            />
+            <MetricCard
+              title="Confidence"
+              value="High"
+              subtitle="Trusted scan results for your code"
+              icon={<Sparkles className="w-6 h-6" />}
+              variant="amber"
+            />
+          </div>
+          <Card elevated className="bg-gradient-to-br from-slate-100 via-white to-emerald-50 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950 border-transparent">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-stone-500 dark:text-stone-400">
+                  Workspace Pulse
+                </p>
+                <h2 className="mt-4 text-3xl font-black text-stone-900 dark:text-white">
+                  Mission Control
+                </h2>
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-white/90 text-emerald-600 shadow-lg shadow-emerald-500/10 dark:bg-stone-900 dark:text-emerald-400">
+                <Sun className="w-6 h-6" />
+              </div>
+            </div>
+            <div className="mt-8 space-y-4">
+              <div className="rounded-3xl bg-white/90 dark:bg-stone-900/80 p-4 border border-stone-200 dark:border-stone-800">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">Latest scan</span>
+                  <span className="rounded-full bg-emerald-100 text-emerald-700 px-3 py-1 text-xs font-semibold dark:bg-emerald-950/40 dark:text-emerald-300">Completed</span>
+                </div>
+                <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+                  Your last audit finished successfully and the dashboard is ready for the next scan.
+                </p>
+              </div>
+              <div className="rounded-3xl bg-white/90 dark:bg-stone-900/80 p-4 border border-stone-200 dark:border-stone-800">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm font-semibold text-stone-700 dark:text-stone-300">Coverage</span>
+                  <span className="text-xs uppercase tracking-[0.24em] text-stone-500 dark:text-stone-400">Full</span>
+                </div>
+                <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-800">
+                  <div className="h-3 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500" style={{ width: '100%' }} />
+                </div>
+                <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">Complete scan coverage across all supported Python patterns.</p>
+              </div>
+            </div>
+          </Card>
+        </section>
 
         {/* ============================================
             INPUT SECTION

@@ -1,4 +1,4 @@
-# src/deepaudit/scanners/secret.py
+# src/vyne/scanners/secret.py
 import math
 import re
 

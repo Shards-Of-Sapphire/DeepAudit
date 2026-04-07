@@ -12,7 +12,7 @@ logger = get_logger("PARSER")
 class CodeParser:
 
     """
-    The DeepAudit Tree-sitter parsing engine.
+    The Vyne Tree-sitter parsing engine.
     Transforms raw Python source code into an Abstract Syntax Tree (AST)
     for the Scanner Registry to analyze.
     """

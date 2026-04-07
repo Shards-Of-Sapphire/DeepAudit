@@ -1,20 +1,7 @@
-"""
-Vyne: The X-Ray for AI-Generated Code.
-Built by Sapphire.
-"""
-
-__version__ = "0.2.0"
-__author__ = "The Sapphire"
-__license__ = "MIT"
-
-# Exposing the version so Roushna can easily pull it for the CLI
-VERSION = __version__
-"""
-Vyne: the X-Ray for AI-generated code.
-"""
+"""Vyne: security signal for AI-built code."""
 
 __version__ = "0.3.1"
-__author__ = "The Sapphire"
+__author__ = "Shaik Zayed Saleem"
 __license__ = "Apache-2.0"
 VERSION = __version__
 

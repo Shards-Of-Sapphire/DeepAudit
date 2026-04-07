@@ -5,14 +5,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .engine.parser import CodeParser
-from .scanners.scanners import ScannerRegistry
+from vyne.engine.parser import CodeParser
+from vyne.scanners.scanners import ScannerRegistry
 
 # Initialize the FastAPI application
 app = FastAPI(
     title="Vyne API",
-    description="The Safe-Guard AI Audit Engine by Sapphire Collective.",
-    version="0.3.0"
+    description="Vyne scanning API for AI-built code.",
+    version="0.3.1"
 )
 
 # --- NEW CORS CONFIGURATION ---
@@ -26,15 +26,15 @@ app.add_middleware(
 # ------------------------------
 
 # Define the expected JSON payload from the user/dashboard
-class AuditRequest(BaseModel):
+class ScanRequest(BaseModel):
     code: str
     filename: str = "snippet.py"
 
 @app.post("/api/v1/scan")
-async def scan_code(request: AuditRequest):
+async def scan_code(request: ScanRequest):
     """
-    Receives raw code via HTTP POST, audits it using the localized 
-    Vyne engine, and returns the findings as pure JSON.
+    Receives raw code via HTTP POST, scans it with the localized
+    Vyne engine, and returns structured findings as JSON.
     """
     if not request.code.strip():
         raise HTTPException(status_code=400, detail="No code provided.")

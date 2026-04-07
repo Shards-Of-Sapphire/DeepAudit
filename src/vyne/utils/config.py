@@ -39,7 +39,7 @@ def get_config(key, default=None):
     """Safely retrieve environment variables."""
     return os.getenv(key, default)
 
-# Pre-defined helpers for DeepAudit
+# Pre-defined helpers for Vyne
 def is_debug():
     return str(get_config("DEBUG", "False")).lower() == "true"
 

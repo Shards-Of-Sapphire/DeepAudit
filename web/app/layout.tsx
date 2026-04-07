@@ -13,8 +13,8 @@ import "./globals.css";
 // });
 
 export const metadata: Metadata = {
-  title: "SAPPHIRE - Vyne Dashboard",
-  description: "AI-Generated Code Security Scanner - The X-Ray for Your Code",
+  title: "Vyne | Security signal for AI-built code",
+  description: "AST-first security scanning for AI-generated code.",
 };
 
 export default function RootLayout({
@@ -23,10 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className="h-full antialiased"
-    >
+    <html lang="en">
       <body className="min-h-full flex flex-col bg-stone-50 dark:bg-stone-950">
         {children}
       </body>

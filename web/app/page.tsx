@@ -270,7 +270,7 @@ const StateDisplay = ({
 
 // ============================================
 // ATOMIC COMPONENT: Creative Header
-// Features: Vyne bold main title, SAPPHIRE badge top right, actual logo
+// Features: Vyne wordmark, live engine badge, actual logo
 // ============================================
 const CreativeHeader = ({
   theme,
@@ -280,7 +280,7 @@ const CreativeHeader = ({
   toggleTheme: () => void;
 }) => (
   <div className="relative">
-    {/* SAPPHIRE Badge - Top Right */}
+    {/* Status Badge - Top Right */}
     <div className="absolute top-0 right-0 flex items-center gap-3">
       <button
         onClick={toggleTheme}
@@ -291,7 +291,7 @@ const CreativeHeader = ({
       </button>
       <div className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2 rounded-full shadow-lg border-2 border-emerald-400/30">
         <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        <span className="font-bold text-sm tracking-wider">SAPPHIRE</span>
+        <span className="font-bold text-sm tracking-wider">LIVE ENGINE</span>
       </div>
     </div>
 
@@ -319,7 +319,7 @@ const CreativeHeader = ({
           </h1>
           <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full"></div>
           <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-            Dashboard
+            Signal Console
           </span>
         </div>
         
@@ -327,9 +327,7 @@ const CreativeHeader = ({
         <div className="mt-3 flex items-center gap-3">
           <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
             <Shield className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <p className="text-sm font-medium">
-              The X-Ray for AI-Generated Code
-            </p>
+            <p className="text-sm font-medium">Security signal for AI-built code</p>
           </div>
           <div className="flex gap-1">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -494,7 +492,7 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `vyne-audit-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `vyne-scan-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -580,7 +578,7 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
         {/* ============================================
             HEADER SECTION
             States: always visible
-            Features: Creative layout with SAPPHIRE badge, Vyne title, logo
+            Features: Creative layout with the Vyne wordmark, live engine badge, and logo
             ============================================ */}
         <header className="border-b-2 border-stone-200 dark:border-stone-800 pb-8">
           <CreativeHeader theme={theme} toggleTheme={toggleTheme} />
@@ -598,9 +596,9 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
                 <Scan className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <div>Target Payload</div>
+                <div>Scan Input</div>
                 <div className="text-xs font-normal text-stone-500 dark:text-stone-500 normal-case tracking-normal">
-                  Paste your code for security analysis
+                  Paste code for a fast risk pass
                 </div>
               </div>
             </label>
@@ -633,10 +631,10 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
 # def vulnerable_function(user_input):
 #     eval(user_input)  # Dangerous!
 # 
-# We'll scan for:
-# - Injection vulnerabilities
-# - Unsafe eval() usage  
-# - Security anti-patterns"
+# Vyne looks for:
+# - suspicious dependencies
+# - unsafe execution paths
+# - leaked secrets"
               className="
                 relative w-full h-72
                 bg-stone-50 dark:bg-stone-950 
@@ -681,15 +679,15 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
                 onClick={handleScan} 
                 disabled={!code.trim()}
                 isLoading={isScanning}
-                title="Run security audit on the code (Ctrl+Enter)"
+                title="Run a Vyne scan on the code (Ctrl+Enter)"
               >
                 <Scan className="w-4 h-4" />
-                {isScanning ? "Scanning..." : "Run Security Audit"}
+                {isScanning ? "Scanning..." : "Run Vyne Scan"}
               </Button>
             </div>
           </div>
           <div className="mt-2 text-xs text-stone-500 dark:text-stone-500 text-center">
-            Tip: Use Ctrl+Enter to quickly run the audit
+            Tip: Use Ctrl+Enter to quickly run a Vyne scan
           </div>
         </Card>
 
@@ -790,11 +788,11 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-stone-800 dark:text-stone-200">
-                    Audit Results
+                    Vyne Findings
                   </h3>
                   {scanCompleted && (
                     <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">
-                      Analysis complete • {findings.length} issue{findings.length !== 1 ? 's' : ''} detected
+                      Scan complete • {findings.length} issue{findings.length !== 1 ? 's' : ''} detected
                     </p>
                   )}
                 </div>
@@ -822,7 +820,7 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
               <StateDisplay
                 icon={<FileX className="w-16 h-16" />}
                 title="No Scan Results Yet"
-                description="Enter your code above and click 'Run Security Audit' to detect potential security vulnerabilities and code quality issues."
+                description="Enter code above and run a Vyne scan to surface security issues and risky AI patterns."
                 variant="default"
               />
             )}
@@ -864,7 +862,7 @@ malicious_data = b"cos\\nsystem\\n(S'rm -rf /'\\ntR."`
             </div>
           </div>
           <p className="text-sm text-stone-500 dark:text-stone-500">
-            Securing the future of AI-generated code, one scan at a time
+            Review AI-generated code before it reaches production
           </p>
         </footer>
       </div>

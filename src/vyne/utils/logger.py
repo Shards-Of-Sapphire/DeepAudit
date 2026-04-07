@@ -1,10 +1,10 @@
-# src/deepaudit/utils/logger.py
+# src/vyne/utils/logger.py
 import logging
 from rich.logging import RichHandler
 from rich.console import Console
 
-# Sapphire Brand Palette
-SAPPHIRE_CONSOLE = Console()
+# Shared Vyne console
+VYNE_CONSOLE = Console()
 
 def get_logger(name: str):
     """
@@ -16,13 +16,13 @@ def get_logger(name: str):
     # Avoid duplicate handlers if get_logger is called multiple times
     if not logger.handlers:
         handler = RichHandler(
-            console=SAPPHIRE_CONSOLE,
+            console=VYNE_CONSOLE,
             rich_tracebacks=True,
             markup=True,
             show_path=False
         )
         
-        # Define the Sapphire Format
+        # Define the shared console format
         formatter = logging.Formatter(
             fmt="%(name)s - %(message)s",
             datefmt="[%X]"

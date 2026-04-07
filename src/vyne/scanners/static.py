@@ -1,4 +1,4 @@
-# src/deepaudit/scanners/static.py
+# src/vyne/scanners/static.py
 
 def scan(ast_node, raw_code: str, file_path: str) -> list[dict]:
     """Performs static analysis to catch dangerous execution functions."""

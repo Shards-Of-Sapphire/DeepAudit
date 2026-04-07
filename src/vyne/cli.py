@@ -18,10 +18,10 @@ def display_header() -> None:
     """Render the CLI header."""
     console.print(
         Panel.fit(
-            f"[bold blue]SAPPHIRE[/bold blue]\n"
-            f"[bold white]Vyne v{VERSION}[/bold white]\n"
-            f"[dim]The X-Ray for AI-Generated Code[/dim]",
-            border_style="blue",
+            f"[bold green]VYNE[/bold green]\n"
+            f"[bold white]v{VERSION}[/bold white]\n"
+            f"[dim]Security signal for AI-built code[/dim]",
+            border_style="green",
             padding=(1, 4),
         )
     )
@@ -30,9 +30,9 @@ def display_header() -> None:
 def _build_results_table(filename: str) -> Table:
     """Constructs the Rich table schema for v0.3.0."""
     table = Table(
-        title=f"Security Audit: {filename}", 
+        title=f"Vyne Scan Results: {filename}",
         show_header=True, 
-        header_style="bold magenta",
+        header_style="bold green",
         expand=True
     )
     table.add_column("Severity", style="bold", width=12)
@@ -124,12 +124,12 @@ def run_audit(file_path: str) -> int:
     if findings_count > 0:
         console.print(results_table)
         console.print(
-            f"\n[bold red]Audit Failed:[/bold red] Found {findings_count} potential risks."
+            f"\n[bold red]Vyne flagged {findings_count} potential risks.[/bold red]"
         )
         return 1
 
     console.print(
-        "\n[bold green]Audit Passed:[/bold green] No major hallucinations or leaks detected."
+        "\n[bold green]Vyne found no major hallucinations or leaks.[/bold green]"
     )
     return 0
 

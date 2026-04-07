@@ -9,7 +9,7 @@ logger = get_logger("REGISTRY")
 
 class ScannerRegistry:
     """
-    The central execution hub for DeepAudit's security modules.
+    The central execution hub for Vyne's security modules.
     
     This registry dynamically discovers and loads all standalone scanners 
     (e.g., dependency, secret, static) residing in the scanners directory. 
@@ -42,8 +42,8 @@ class ScannerRegistry:
                 continue
 
             try:
-                # Dynamically import the module (e.g., 'deepaudit.scanners.secret')
-                module = importlib.import_module(f"deepaudit.scanners.{module_name}")
+                # Dynamically import the module (e.g., 'vyne.scanners.secret')
+                module = importlib.import_module(f"vyne.scanners.{module_name}")
                 
                 # Enforce the Scanner Contract: Must have a 'scan' function
                 if hasattr(module, "scan") and callable(module.scan):

@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sapphire-vyne"
-version = "0.3.0"
-description = "Automated security auditor for AI-generated code, focusing on AST logic and hallucination detection."
+name = "vyne"
+version = "0.3.1"
+description = "Security signal for AI-built code with AST-driven scanning for hallucinated dependencies, risky execution, and leaked secrets."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "Apache-2.0"}
 authors = [
-    {name = "Shaik Zayed Saleem", email = "zayed@sapphire.dev"}, # Update as needed
+    {name = "Shaik Zayed Saleem", email = "shaikzayedsaleem@gmail.com"},
 ]
-keywords = ["security", "ast", "ai-code", "audit", "static-analysis"]
+keywords = ["security", "static-analysis", "ai-generated-code", "sast", "supply-chain"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",

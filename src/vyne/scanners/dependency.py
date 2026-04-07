@@ -1,4 +1,4 @@
-# src/deepaudit/scanners/dependency.py
+# src/vyne/scanners/dependency.py
 
 def scan(ast_node, raw_code: str, file_path: str) -> list[dict]:
     """Scans for known hallucinated or dangerous AI dependencies."""
